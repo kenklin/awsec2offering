@@ -1,5 +1,5 @@
 {"ec2offerings":
 [{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"t1.micro","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.020}
-,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"t1.small","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.060}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m1.small","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.060}
 ]
 }
