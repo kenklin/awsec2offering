@@ -1,5 +1,41 @@
 {"ec2offerings":
-[{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"t1.micro","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.020}
-,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m1.small","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.060}
+[{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m3.medium",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.113}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m3.large",   "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.225}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m3.xlarge",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.450}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m3.2xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.900}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m1.small",   "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.060}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m1.medium",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.120}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m1.large",   "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.240}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m1.xlarge",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.480}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"c3.large",   "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.150}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"c3.xlarge",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.300}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"c3.2xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.600}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"c3.4xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":1.200}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"c3.8xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":2.400}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"c1.medium",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.145}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"c1.xlarge",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.580}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"cc2.8xlarge","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":2.400}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"g2.2xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.650}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"cg1.4xlarge","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":2.100}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m2.xlarge",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.410}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m2.2xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.820}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m2.4xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":1.640}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"cr1.8xlarge","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":3.500}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"i2.xlarge",  "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.853}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"i2.2xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":1.705}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"i2.4xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":3.410}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"i2.8xlarge", "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":6.820}
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"hs1.8xlarge","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":4.600}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"hi1.4xlarge","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":3.100}
+
+,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"t1.micro",   "productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0,"hourlyPrice":0.020}
 ]
 }
