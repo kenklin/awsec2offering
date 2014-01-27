@@ -131,9 +131,15 @@ public class App {
 		mapper = new ObjectMapper();
 	}
 
-	private void addReservedInstancesToOfferingsArray(ArrayNode array,
-			String availabilityZone, String productDescription,
-			String offeringType, String instanceType) {
+	private void addOnDemandOfferings(ArrayNode array,
+		String availabilityZone, String productDescription, String offeringType, String instanceType)
+	{
+		
+	}
+
+	private void addReservedOfferings(ArrayNode array,
+			String availabilityZone, String productDescription, String offeringType, String instanceType)
+	{
 		DescribeReservedInstancesOfferingsRequest req = new DescribeReservedInstancesOfferingsRequest()
 				.withIncludeMarketplace(false).withInstanceTenancy(
 						Tenancy.Default); // Not Tenancy.Dedicated
@@ -176,14 +182,14 @@ public class App {
 	 *            The EC2 product descriptions to limit the retrievals to.
 	 * @return
 	 */
-	private JsonNode getOfferingsAsJsonNode(String availabilityZone,
-			String productDescription, String offeringType, String instanceType)
-			throws JsonProcessingException, IOException {
+	private JsonNode getOfferingsAsJsonNode(String availabilityZone, String productDescription, String offeringType, String instanceType)
+			throws JsonProcessingException, IOException
+	{
 		ArrayNode array = mapper.createArrayNode();
 		if (instanceType == null) {
 			try {
-				addReservedInstancesToOfferingsArray(array, availabilityZone,
-						productDescription, offeringType, instanceType);
+				addOnDemandOfferings(array, availabilityZone, productDescription, offeringType, instanceType);
+				addReservedOfferings(array, availabilityZone, productDescription, offeringType, instanceType);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -191,18 +197,17 @@ public class App {
 			// Google
 			// https://www.google.com/search?q=java+spring+pathvariable+encode
 			// http://stackoverflow.com/questions/9608711/spring-mvc-path-variables-encoding
-			// System.out.print("instanceType = '" + instanceType + "' -> ");
+// System.out.print("instanceType = '" + instanceType + "' -> ");
 			for (String str : instanceType.split(SEPARATOR)) {
-				// System.out.print("'" + str + "' ");
+// System.out.print("'" + str + "' ");
 				try {
-					addReservedInstancesToOfferingsArray(array,
-							availabilityZone, productDescription, offeringType,
-							str);
+					addOnDemandOfferings(array, availabilityZone, productDescription, offeringType, str);
+					addReservedOfferings(array, availabilityZone, productDescription, offeringType, str);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-			// System.out.println();
+// System.out.println();
 		}
 
 		ObjectNode root = mapper.createObjectNode();
@@ -211,10 +216,8 @@ public class App {
 	}
 
 	// e.g., http://localhost:8080/awsec2offering/awsec2offering/api/splat
-	// @see
-	// http://docs.spring.io/spring/docs/3.2.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-config
-	// @see
-	// https://gist.github.com/kdonald/2012289/raw/363289ee8652823f770ef82f594e9a8f15048090/ExampleController.java
+	// @see http://docs.spring.io/spring/docs/3.2.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-config
+	// @see https://gist.github.com/kdonald/2012289/raw/363289ee8652823f770ef82f594e9a8f15048090/ExampleController.java
 	@RequestMapping(value = "/awsec2offering/api/{availabilityZone}/{productDescription}/{offeringType}/{instanceType}", method = RequestMethod.GET)
 	@ResponseBody
 	public JsonNode getOfferings(@PathVariable String availabilityZone,
@@ -237,36 +240,33 @@ public class App {
 
 	@RequestMapping(value = "/awsec2offering/api/{availabilityZone}/{productDescription}/{offeringType}", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonNode getOfferings(@PathVariable String availabilityZone,
-			@PathVariable String productDescription,
-			@PathVariable String offeringType, HttpServletRequest req,
-			HttpServletResponse resp) {
-		return getOfferings(availabilityZone, productDescription, offeringType,
-				null, req, resp);
+	public JsonNode getOfferings(@PathVariable String availabilityZone, @PathVariable String productDescription, @PathVariable String offeringType,
+			HttpServletRequest req, HttpServletResponse resp)
+	{
+		return getOfferings(availabilityZone, productDescription, offeringType, null, req, resp);
 	}
 
 	@RequestMapping(value = "/awsec2offering/api/{availabilityZone}/{productDescription}", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonNode getOfferings(@PathVariable String availabilityZone,
-			@PathVariable String productDescription, HttpServletRequest req,
-			HttpServletResponse resp) {
-		return getOfferings(availabilityZone, productDescription, null, null,
-				req, resp);
+	public JsonNode getOfferings(@PathVariable String availabilityZone, @PathVariable String productDescription,
+			HttpServletRequest req, HttpServletResponse resp)
+	{
+		return getOfferings(availabilityZone, productDescription, null, null, req, resp);
 	}
 
 	@RequestMapping(value = "/awsec2offering/api/{availabilityZone}", method = RequestMethod.GET)
 	@ResponseBody
 	public JsonNode getOfferings(@PathVariable String availabilityZone,
-			HttpServletRequest req, HttpServletResponse resp) {
+			HttpServletRequest req, HttpServletResponse resp)
+	{
 		return getOfferings(availabilityZone, null, null, null, req, resp);
 	}
 
 	@RequestMapping(value = "/awsec2offering/api/", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonNode getAllOfferings(HttpServletRequest req,
-			HttpServletResponse resp) {
-		return getOfferings(AVAILABILITYZONE_DEFAULT,
-				PRODUCTDESCRIPTION_DEFAULT, null, null, req, resp);
+	public JsonNode getAllOfferings(HttpServletRequest req, HttpServletResponse resp)
+	{
+		return getOfferings(AVAILABILITYZONE_DEFAULT, PRODUCTDESCRIPTION_DEFAULT, null, null, req, resp);
 	}
 
 	public static void main(String[] args) throws Exception {
