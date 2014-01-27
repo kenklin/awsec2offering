@@ -68,6 +68,9 @@ public class App {
 	// JSON output
 	public static final String	ARRAYNAME = "ec2offerings";
 
+	// Class data members
+	private static Cache		cache = new Cache();
+	
 	// Instance data members
 	private AmazonEC2Client		ec2 = null;
 	private ObjectMapper		mapper = null;
@@ -196,6 +199,13 @@ public class App {
 		} while (nextToken != null);
 	}
 
+	private String createKey(String availabilityZone, String productDescription, String offeringType, String instanceType) {
+		return "'" + availabilityZone + "' '"
+				+ productDescription + "' '"
+				+ offeringType + "' '"
+				+ instanceType + "'";
+	}
+	
 	/**
 	 * Constructs the JSON object with an array of abridged EC2 reserved
 	 * instance offering objects.
@@ -212,28 +222,38 @@ public class App {
 		productDescription = normalizeRIProductDescription(productDescription);	// e.g., "linux" -> "Linux/UNIX"
 		offeringType = normalizeOfferingType(offeringType);	// e.g., "heavy" -> "Heavy Utilization"
 		
-		ArrayNode array = mapper.createArrayNode();
-		if (instanceType == null) {
-			try {
-				addOnDemandOfferings(array, availabilityZone, productDescription, instanceType);
-				addReservedOfferings(array, availabilityZone, productDescription, offeringType, instanceType);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		String key = createKey(availabilityZone, productDescription, offeringType, instanceType);
+		ArrayNode array = cache.get(key);
+		
+		if (array != null) {
+//	        logger.audit(req.getRemoteAddr(), id, "cached");
+System.out.println("cached: " + key);
 		} else {
-			// Google
-			// https://www.google.com/search?q=java+spring+pathvariable+encode
-			// http://stackoverflow.com/questions/9608711/spring-mvc-path-variables-encoding
-			for (String str : instanceType.split(SEPARATOR)) {
+			array = mapper.createArrayNode();
+			if (instanceType == null) {
 				try {
-					addOnDemandOfferings(array, availabilityZone, productDescription, str);
-					addReservedOfferings(array, availabilityZone, productDescription, offeringType, str);
+					addOnDemandOfferings(array, availabilityZone, productDescription, instanceType);
+					addReservedOfferings(array, availabilityZone, productDescription, offeringType, instanceType);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			} else {
+				// Google
+				// https://www.google.com/search?q=java+spring+pathvariable+encode
+				// http://stackoverflow.com/questions/9608711/spring-mvc-path-variables-encoding
+				for (String str : instanceType.split(SEPARATOR)) {
+					try {
+						addOnDemandOfferings(array, availabilityZone, productDescription, str);
+						addReservedOfferings(array, availabilityZone, productDescription, offeringType, str);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
+System.out.println("live:   " + key);
+			cache.put(key, array);
 		}
-
+		
 		ObjectNode root = mapper.createObjectNode();
 		root.put(ARRAYNAME, array);
 		return root;
