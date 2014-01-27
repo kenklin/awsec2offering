@@ -3,11 +3,14 @@ package com.kenlin.awsec2offering;
 import java.io.IOException;
 
 import com.amazonaws.services.ec2.model.ReservedInstancesOffering;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+@JsonAutoDetect
 public class Offering {
 	public final static String	AVAILABILITYZONE	= "availabilityZone";
 	public final static String	OFFERINGTYPE		= "offeringType";
@@ -25,14 +28,14 @@ public class Offering {
 
 	private static ObjectMapper	mapper = new ObjectMapper();
 	  
-	private String	availabilityZone = null;	// e.g., "us-east-1a"
-	private String	offeringType = null;		// e.g., "Heavy Utilization"
-	private String	instanceType = null;		// e.g., "m1.small"
-	private String	productDescription = null;	// e.g., "Linux/UNIX (Amazon VPC)"
-	private String	currencyCode = null;		// e.g., "USD"
-	private Long	duration = null;			// e.g., YEAR1 or YEAR3
-	private Float	fixedPrice = null;			// e.g., 169.0
-	private Double	hourlyPrice = null;			// e.g., 0.014
+	@JsonProperty public String	availabilityZone = null;	// e.g., "us-east-1a"
+	@JsonProperty public String	offeringType = null;		// e.g., "Heavy Utilization"
+	@JsonProperty public String	instanceType = null;		// e.g., "m1.small"
+	@JsonProperty public String	productDescription = null;	// e.g., "Linux/UNIX (Amazon VPC)"
+	@JsonProperty public String	currencyCode = null;		// e.g., "USD"
+	@JsonProperty public Long	duration = null;			// e.g., YEAR1 or YEAR3
+	@JsonProperty public Float	fixedPrice = null;			// e.g., 169.0
+	@JsonProperty public Double	hourlyPrice = null;			// e.g., 0.014
 	
 /* totalMonthlyCost functionality has been offloaded to the client-side
 
@@ -57,6 +60,8 @@ public class Offering {
 	}
 */
 
+	public Offering() {}
+	
 	public Offering(ReservedInstancesOffering offering) {
 		availabilityZone	= offering.getAvailabilityZone();
 		offeringType		= offering.getOfferingType();

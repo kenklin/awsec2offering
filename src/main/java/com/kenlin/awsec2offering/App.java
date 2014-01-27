@@ -17,6 +17,7 @@
 package com.kenlin.awsec2offering;
 
 import java.io.IOException;
+import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +39,9 @@ import com.amazonaws.services.ec2.model.OfferingTypeValues;
 import com.amazonaws.services.ec2.model.RIProductDescription;
 import com.amazonaws.services.ec2.model.ReservedInstancesOffering;
 import com.amazonaws.services.ec2.model.Tenancy;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -46,27 +49,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Controller
 public class App {
+	public static final String	ONDEMAND_URL ="https://raw2.github.com/kenklin/awsec2offering/master/src/main/resources/aws-ec2-ondemand.json";
+	
 	// URI components
-	public static final String LINUX_PREFIX = "linux";
-	public static final String WINDOWS_PREFIX = "windows";
-	public static final String AMAZONVPC_SUFFIX = "vpc";
+	public static final String	LINUX_PREFIX = "linux";
+	public static final String	WINDOWS_PREFIX = "windows";
+	public static final String	AMAZONVPC_SUFFIX = "vpc";
 
-	public static final String HEAVY_PREFIX = "heavy";
-	public static final String MEDIUM_PREFIX = "medium";
-	public static final String LIGHT_PREFIX = "light";
+	public static final String	HEAVY_PREFIX = "heavy";
+	public static final String	MEDIUM_PREFIX = "medium";
+	public static final String	LIGHT_PREFIX = "light";
 
-	public static final String AVAILABILITYZONE_DEFAULT = "us-east-1a";
-	public static final String PRODUCTDESCRIPTION_DEFAULT = LINUX_PREFIX;
+	public static final String	AVAILABILITYZONE_DEFAULT = "us-east-1a";
+	public static final String	PRODUCTDESCRIPTION_DEFAULT = LINUX_PREFIX;
 
-	public static final String SEPARATOR = ","; // Separates multi-value
-												// instanceType
+	public static final String	SEPARATOR = ","; // Separates multi-value instanceType
 
 	// JSON output
-	public static final String ARRAYNAME = "ec2offerings";
+	public static final String	ARRAYNAME = "ec2offerings";
 
 	// Instance data members
-	private AmazonEC2Client ec2 = null;
-	private ObjectMapper mapper = null;
+	private AmazonEC2Client		ec2 = null;
+	private ObjectMapper		mapper = null;
 
 	/**
 	 * A URI-appropriate EC2 product description parser.
@@ -77,15 +81,17 @@ public class App {
 	 * @param value
 	 * @return
 	 */
-	public static RIProductDescription parseRIProductDescription(String value) {
+	public static String normalizeRIProductDescription(String value) {
 		if (value.startsWith(LINUX_PREFIX)) {
-			return value.endsWith(AMAZONVPC_SUFFIX) ? RIProductDescription.LinuxUNIXAmazonVPC
-					: RIProductDescription.LinuxUNIX;
+			return value.endsWith(AMAZONVPC_SUFFIX)
+					? RIProductDescription.LinuxUNIXAmazonVPC.toString()
+					: RIProductDescription.LinuxUNIX.toString();
 		} else if (value.startsWith(WINDOWS_PREFIX)) {
-			return value.endsWith(AMAZONVPC_SUFFIX) ? RIProductDescription.WindowsAmazonVPC
-					: RIProductDescription.Windows;
+			return value.endsWith(AMAZONVPC_SUFFIX)
+					? RIProductDescription.WindowsAmazonVPC.toString()
+					: RIProductDescription.Windows.toString();
 		} else {
-			return RIProductDescription.fromValue(value);
+			return RIProductDescription.fromValue(value).toString();
 		}
 	}
 
@@ -98,15 +104,15 @@ public class App {
 	 * @param value
 	 * @return
 	 */
-	public static OfferingTypeValues parseOfferingType(String value) {
+	public static String normalizeOfferingType(String value) {
 		if (value.startsWith(HEAVY_PREFIX)) {
-			return OfferingTypeValues.HeavyUtilization;
+			return OfferingTypeValues.HeavyUtilization.toString();
 		} else if (value.startsWith(MEDIUM_PREFIX)) {
-			return OfferingTypeValues.MediumUtilization;
+			return OfferingTypeValues.MediumUtilization.toString();
 		} else if (value.startsWith(LIGHT_PREFIX)) {
-			return OfferingTypeValues.LightUtilization;
+			return OfferingTypeValues.LightUtilization.toString();
 		} else {
-			return OfferingTypeValues.fromValue(value);
+			return OfferingTypeValues.fromValue(value).toString();
 		}
 	}
 
@@ -131,33 +137,51 @@ public class App {
 		mapper = new ObjectMapper();
 	}
 
+	private OfferingArray readOnDemandOfferings() throws JsonParseException, JsonMappingException, IOException {
+		URL url = new URL(ONDEMAND_URL);
+		return mapper.readValue(url, OfferingArray.class);
+	}
+	
 	private void addOnDemandOfferings(ArrayNode array,
-		String availabilityZone, String productDescription, String offeringType, String instanceType)
+		String availabilityZone, String productDescription, String instanceType)
 	{
-		
+		try {
+			OfferingArray offerings = readOnDemandOfferings();
+			for (Offering offering : offerings.ec2offerings) {
+				if ((availabilityZone != null && !availabilityZone.equals(offering.availabilityZone))
+					|| (productDescription != null && !productDescription.equals(offering.productDescription))
+					|| (instanceType != null && !instanceType.equals(offering.instanceType)))
+					continue;
+				array.add(offering.toJsonNode());
+			}
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void addReservedOfferings(ArrayNode array,
 			String availabilityZone, String productDescription, String offeringType, String instanceType)
 	{
 		DescribeReservedInstancesOfferingsRequest req = new DescribeReservedInstancesOfferingsRequest()
-				.withIncludeMarketplace(false).withInstanceTenancy(
-						Tenancy.Default); // Not Tenancy.Dedicated
+				.withIncludeMarketplace(false).
+				withInstanceTenancy(Tenancy.Default); // Not Tenancy.Dedicated
 		if (availabilityZone != null)
 			req.setAvailabilityZone(availabilityZone);
 		if (productDescription != null)
-			req.setProductDescription(parseRIProductDescription(productDescription));
+			req.setProductDescription(productDescription);
 		if (offeringType != null)
-			req.setOfferingType(parseOfferingType(offeringType));
+			req.setOfferingType(offeringType);
 		if (instanceType != null)
 			req.setInstanceType(parseInstanceType(instanceType));
 
 		String nextToken = null;
 		do {
-			DescribeReservedInstancesOfferingsResult res = ec2
-					.describeReservedInstancesOfferings(req);
-			for (ReservedInstancesOffering o : res
-					.getReservedInstancesOfferings()) {
+			DescribeReservedInstancesOfferingsResult res = ec2.describeReservedInstancesOfferings(req);
+			for (ReservedInstancesOffering o : res.getReservedInstancesOfferings()) {
 				Offering offering = new Offering(o);
 				try {
 					array.add(offering.toJsonNode());
@@ -185,10 +209,13 @@ public class App {
 	private JsonNode getOfferingsAsJsonNode(String availabilityZone, String productDescription, String offeringType, String instanceType)
 			throws JsonProcessingException, IOException
 	{
+		productDescription = normalizeRIProductDescription(productDescription);	// e.g., "linux" -> "Linux/UNIX"
+		offeringType = normalizeOfferingType(offeringType);	// e.g., "heavy" -> "Heavy Utilization"
+		
 		ArrayNode array = mapper.createArrayNode();
 		if (instanceType == null) {
 			try {
-				addOnDemandOfferings(array, availabilityZone, productDescription, offeringType, instanceType);
+				addOnDemandOfferings(array, availabilityZone, productDescription, instanceType);
 				addReservedOfferings(array, availabilityZone, productDescription, offeringType, instanceType);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -197,17 +224,14 @@ public class App {
 			// Google
 			// https://www.google.com/search?q=java+spring+pathvariable+encode
 			// http://stackoverflow.com/questions/9608711/spring-mvc-path-variables-encoding
-// System.out.print("instanceType = '" + instanceType + "' -> ");
 			for (String str : instanceType.split(SEPARATOR)) {
-// System.out.print("'" + str + "' ");
 				try {
-					addOnDemandOfferings(array, availabilityZone, productDescription, offeringType, str);
+					addOnDemandOfferings(array, availabilityZone, productDescription, str);
 					addReservedOfferings(array, availabilityZone, productDescription, offeringType, str);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-// System.out.println();
 		}
 
 		ObjectNode root = mapper.createObjectNode();
@@ -273,12 +297,11 @@ public class App {
 		String availabilityZone = AVAILABILITYZONE_DEFAULT;
 		String productDescription = PRODUCTDESCRIPTION_DEFAULT;
 		String offeringType = HEAVY_PREFIX;
-		String instanceType = "t1.micro,m1.small,m1.medium";
+		String instanceType = "t1.micro,m1.small";
 
 		App app = new App();
 		try {
-			JsonNode json = app.getOfferingsAsJsonNode(availabilityZone,
-					productDescription, offeringType, instanceType);
+			JsonNode json = app.getOfferingsAsJsonNode(availabilityZone, productDescription, offeringType, instanceType);
 			System.out.println(json);
 		} catch (AmazonServiceException ase) {
 			ase.printStackTrace();
