@@ -147,20 +147,12 @@ public class App implements InitializingBean {
 		// set "AWS_ACCESS_KEY_ID=xxx"
 		// set "AWS_SECRET_KEY=xxxxxxxxx"
 		// exit /b 01
-		ec2 = new AmazonEC2Client(new EnvironmentVariableCredentialsProvider());
+		ec2 = new AmazonEC2Client();	// 1) Env var, 2) Java system prop, 3) EC2 metadata
 		mapper = new ObjectMapper();
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-/*		
-//	    cache = new ConcurrentHashMap<String, StringWriter>();
-		cache = new ToJSONCache();
-	    mapper = new ObjectMapper();
-	    
-		String packageName = this.getClass().getPackage().getName();
-	    logger = LogManager.getFormatterLogger(packageName);
-*/
 	}
 
 	private OfferingArray readOnDemandOfferings() throws JsonParseException, JsonMappingException, IOException {
