@@ -3,12 +3,33 @@ AWS EC2 Offering Description Web Service (awsec2offering)
 Software vendors using Amazon Web Service's Elastic Compute Cloud are faced with understanding different EC2 offerings and their [costs](http://aws.amazon.com/ec2/purchasing-options/reserved-instances/).
 
 This RESTful web service returns both AWS EC2 on-demand and reserved instance offering descriptions which include both fixed and monthly costs.
-- Reserved instance offering information is obtained from AWS via [DescribeReservedInstanceOfferings](http://docs.aws.amazon.com/AWSEC2/latest/APIReference/ApiReference-query-DescribeReservedInstancesOfferings.html) calls.  While information is cached on the awsec2offering server, it is purged every 24 hours.
-- On-demand instance offering information is not availabe via the AWS SDK.  Therefore it has been hand transcribed from the AWS EC2 Pricing [page](http://aws.amazon.com/ec2/pricing/) into a JSON [file](https://github.com/kenklin/awsec2offering/blob/master/src/main/resources/aws-ec2-ondemand.json) which is read over the network by the awsec2offering server.  This information is also purged every 24 hours.  
+- *Reserved instance* offering information is obtained from AWS via [DescribeReservedInstanceOfferings](http://docs.aws.amazon.com/AWSEC2/latest/APIReference/ApiReference-query-DescribeReservedInstancesOfferings.html) calls.  While information is cached on the awsec2offering server, it is purged every 24 hours.
+- *On-demand* instance offering information is not availabe via the AWS SDK.  Therefore it has been hand transcribed from the AWS EC2 Pricing [page](http://aws.amazon.com/ec2/pricing/) into a JSON [file](https://github.com/kenklin/awsec2offering/blob/master/src/main/resources/aws-ec2-ondemand.json) which is read over the network by the awsec2offering server.  This information is also purged every 24 hours.  
  
 If updates to the on-demand price file are needed, please contribute by either:
 - Post it as an [issue](https://github.com/kenklin/awsec2offering/issues), or better yet,
 - Modify  [aws-ec2-ondemand.json](https://github.com/kenklin/awsec2offering/blob/master/src/main/resources/aws-ec2-ondemand.json) and send a pull request.
+
+Request
+-------
+The URI for each EC2 instance offering takes the following form ...
+
+   *availabilityZone* / *productDescription* / *offeringType* / *instanceType*[,*instanceType*]
+
+Response
+--------
+The returned result is a JSON object whose ec2offering value is an array of EC2 descriptions like this ...
+
+    {"ec2offerings":
+    [{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"t1.micro","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0.0,"hourlyPrice":0.02}
+    ,{"availabilityZone":"us-east-1a","offeringType":"Heavy Utilization","instanceType":"t1.micro","productDescription":"Linux/UNIX","duration":94608000,"currencyCode":"USD","fixedPrice":100.0,"hourlyPrice":0.0050}
+    ,{"availabilityZone":"us-east-1a","offeringType":"Heavy Utilization","instanceType":"t1.micro","productDescription":"Linux/UNIX","duration":31536000,"currencyCode":"USD","fixedPrice":62.0,"hourlyPrice":0.0050}
+    ,{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"m1.small","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0.0,"hourlyPrice":0.06}
+    ,{"availabilityZone":"us-east-1a","offeringType":"Heavy Utilization","instanceType":"m1.small","productDescription":"Linux/UNIX","duration":94608000,"currencyCode":"USD","fixedPrice":257.0,"hourlyPrice":0.012}
+    ,{"availabilityZone":"us-east-1a","offeringType":"Heavy Utilization","instanceType":"m1.small","productDescription":"Linux/UNIX","duration":31536000,"currencyCode":"USD","fixedPrice":169.0,"hourlyPrice":0.014}
+    ]}
+
+
 
 
 Also see the companion [AWS EC2 Price Comparison Chart](https://github.com/kenklin/aws-price-comparison-chart).
