@@ -22,6 +22,7 @@ import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,20 +49,22 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Controller
-public class App {
+public class App implements InitializingBean {
 	public static final String	ONDEMAND_URL ="https://raw2.github.com/kenklin/awsec2offering/master/src/main/resources/aws-ec2-ondemand.json";
 	
 	// URI components
-	public static final String	LINUX_PREFIX = "linux";
-	public static final String	WINDOWS_PREFIX = "windows";
-	public static final String	AMAZONVPC_SUFFIX = "vpc";
+	public static final String	AVAILABILITYZONE_DEFAULT	= "us-east-1a";
+	public static final String	PRODUCTDESCRIPTION_DEFAULT	= "Linux/UNIX";
+	public static final String	OFFERINGTYPE_DEFAULT		= null;	// okay to be omitted
+	public static final String	INSTANCETYPE_DEFAULT		= null;	// okay to be omitted
 
-	public static final String	HEAVY_PREFIX = "heavy";
-	public static final String	MEDIUM_PREFIX = "medium";
-	public static final String	LIGHT_PREFIX = "light";
+	public static final String	LINUX_PREFIX		= "linux";
+	public static final String	WINDOWS_PREFIX		= "windows";
+	public static final String	AMAZONVPC_SUFFIX	= "vpc";
 
-	public static final String	AVAILABILITYZONE_DEFAULT = "us-east-1a";
-	public static final String	PRODUCTDESCRIPTION_DEFAULT = LINUX_PREFIX;
+	public static final String	HEAVY_PREFIX		= "heavy";
+	public static final String	MEDIUM_PREFIX		= "medium";
+	public static final String	LIGHT_PREFIX		= "light";
 
 	public static final String	SEPARATOR = ","; // Separates multi-value instanceType
 
@@ -85,7 +88,9 @@ public class App {
 	 * @return
 	 */
 	public static String normalizeRIProductDescription(String value) {
-		if (value.startsWith(LINUX_PREFIX)) {
+		if (value == null) {
+			return null;
+		} else if (value.startsWith(LINUX_PREFIX)) {
 			return value.endsWith(AMAZONVPC_SUFFIX)
 					? RIProductDescription.LinuxUNIXAmazonVPC.toString()
 					: RIProductDescription.LinuxUNIX.toString();
@@ -108,7 +113,9 @@ public class App {
 	 * @return
 	 */
 	public static String normalizeOfferingType(String value) {
-		if (value.startsWith(HEAVY_PREFIX)) {
+		if (value == null) {
+			return null;
+		} else if (value.startsWith(HEAVY_PREFIX)) {
 			return OfferingTypeValues.HeavyUtilization.toString();
 		} else if (value.startsWith(MEDIUM_PREFIX)) {
 			return OfferingTypeValues.MediumUtilization.toString();
@@ -120,7 +127,11 @@ public class App {
 	}
 
 	public static InstanceType parseInstanceType(String value) {
-		return InstanceType.fromValue(value);
+		if (value == null) {
+			return null;
+		} else {
+			return InstanceType.fromValue(value);
+		}
 	}
 
 	public static void addCORSHeaders(HttpServletResponse resp) {
@@ -138,6 +149,18 @@ public class App {
 		// exit /b 01
 		ec2 = new AmazonEC2Client(new EnvironmentVariableCredentialsProvider());
 		mapper = new ObjectMapper();
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+/*		
+//	    cache = new ConcurrentHashMap<String, StringWriter>();
+		cache = new ToJSONCache();
+	    mapper = new ObjectMapper();
+	    
+		String packageName = this.getClass().getPackage().getName();
+	    logger = LogManager.getFormatterLogger(packageName);
+*/
 	}
 
 	private OfferingArray readOnDemandOfferings() throws JsonParseException, JsonMappingException, IOException {
@@ -264,11 +287,9 @@ System.out.println("live:   " + key);
 	// @see https://gist.github.com/kdonald/2012289/raw/363289ee8652823f770ef82f594e9a8f15048090/ExampleController.java
 	@RequestMapping(value = "/awsec2offering/api/{availabilityZone}/{productDescription}/{offeringType}/{instanceType}", method = RequestMethod.GET)
 	@ResponseBody
-	public JsonNode getOfferings(@PathVariable String availabilityZone,
-			@PathVariable String productDescription,
-			@PathVariable String offeringType,
-			@PathVariable String instanceType, HttpServletRequest req,
-			HttpServletResponse resp) {
+	public JsonNode getOfferings(@PathVariable String availabilityZone, @PathVariable String productDescription, @PathVariable String offeringType, @PathVariable String instanceType,
+			HttpServletRequest req, HttpServletResponse resp)
+	{
 		JsonNode json = null;
 		try {
 			addCORSHeaders(resp);
@@ -281,6 +302,16 @@ System.out.println("live:   " + key);
 		}
 		return json;
 	}
+
+/* THIS DOESN'T HELP :(
+	@RequestMapping(value = "/api/{availabilityZone}/{productDescription}/{offeringType}/{instanceType}", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonNode getOfferingsKluge(@PathVariable String availabilityZone, @PathVariable String productDescription, @PathVariable String offeringType, @PathVariable String instanceType,
+			HttpServletRequest req, HttpServletResponse resp)
+	{
+		return getOfferings(availabilityZone, productDescription, offeringType, instanceType, req, resp);
+	}
+*/
 
 	@RequestMapping(value = "/awsec2offering/api/{availabilityZone}/{productDescription}/{offeringType}", method = RequestMethod.GET)
 	@ResponseBody
@@ -303,7 +334,7 @@ System.out.println("live:   " + key);
 	public JsonNode getOfferings(@PathVariable String availabilityZone,
 			HttpServletRequest req, HttpServletResponse resp)
 	{
-		return getOfferings(availabilityZone, null, null, null, req, resp);
+		return getOfferings(availabilityZone, PRODUCTDESCRIPTION_DEFAULT, null, null, req, resp);
 	}
 
 	@RequestMapping(value = "/awsec2offering/api/", method = RequestMethod.GET)
@@ -311,6 +342,30 @@ System.out.println("live:   " + key);
 	public JsonNode getAllOfferings(HttpServletRequest req, HttpServletResponse resp)
 	{
 		return getOfferings(AVAILABILITYZONE_DEFAULT, PRODUCTDESCRIPTION_DEFAULT, null, null, req, resp);
+	}
+
+	// *** KLUGE *** KLUGE *** KLUGE *** KLUGE *** KLUGE *** KLUGE ***
+	//
+	// Kluge for combined p1software-eb1 uber WAR for elastic beanstalk's single
+	// WAR deployment!  When used in the p1software-eb1 project, the path starts
+	// with /api instead of /awsec2offering/api, so the mappings above do not
+	// fire!  
+	@RequestMapping(method=RequestMethod.GET)
+	@ResponseBody
+	public JsonNode klugeForSingleBeanstalkWAR(HttpServletRequest req, HttpServletResponse resp) {
+//System.out.println("in klugeForSingleBeanstalkWAR - getPathInfo = " + req.getPathInfo());
+		final int start = 1;		// e.g., path == "/api/us-east-1a"
+		String parts[] = req.getPathInfo().split("/");
+
+		String availabilityZone		= (parts.length >= start + 1) ? parts[start + 0] : AVAILABILITYZONE_DEFAULT;
+		String productDescription	= (parts.length >= start + 2) ? parts[start + 1] : PRODUCTDESCRIPTION_DEFAULT;
+		String offeringType			= (parts.length >= start + 3) ? parts[start + 2] : OFFERINGTYPE_DEFAULT;
+		String instanceType			= (parts.length >= start + 4) ? parts[start + 3] : INSTANCETYPE_DEFAULT;
+
+		if (instanceType != null && instanceType.endsWith("."))
+			instanceType = instanceType.substring(0, instanceType.length() - 1);
+
+		return getOfferings(availabilityZone, productDescription, offeringType, instanceType, req, resp);
 	}
 
 	public static void main(String[] args) throws Exception {
