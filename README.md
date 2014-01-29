@@ -32,7 +32,7 @@ The URI used to request EC2 instance offering descriptions takes this form ...
 
 This sample URL requests instance descriptions in <code>us-east-1a</code> for <code>heavy</code> utilization <code>linux</code> servers in both <code>t1.micro</code> and <code>m1.small</code> instance types.
 
-    http://p1software-eb1.elasticbeanstalk.com/awsec2offering/api/us-east-1a/linux/heavy/t1.micro,m1.small
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[http://p1software-eb1.elasticbeanstalk.com/awsec2offering/api/us-east-1a/linux/heavy/t1.micro,m1.small]( http://p1software-eb1.elasticbeanstalk.com/awsec2offering/api/us-east-1a/linux/heavy/t1.micro,m1.small)
 
 
 Response
