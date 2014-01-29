@@ -37,7 +37,7 @@ This sample URL requests instance descriptions in <code>us-east-1a</code> for <c
 
 Response
 --------
-The returned result is a JSON object whose ec2offering value is an array of EC2 descriptions like this ...
+The returned result is a JSON object whose ec2offering value is an array of EC2 descriptions (pretty printed here) like this ...
 
     {"ec2offerings":
     [{"availabilityZone":"us-east-1a","offeringType":"On-Demand","instanceType":"t1.micro","productDescription":"Linux/UNIX","duration":0,"currencyCode":"USD","fixedPrice":0.0,"hourlyPrice":0.02}
